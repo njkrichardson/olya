@@ -58,7 +58,7 @@ module datapath(input  logic clock, reset,
 
     // --- register file address muxes 
     mux2 #(4) ra1mux(instruction[19:16], 4'b1111, register_source[0], register_address1);
-    mux2 #(4) ra2mux(instruction[30], instruction[15:12], register_source[1], register_address2);
+    mux2 #(4) ra2mux(instruction[3:0], instruction[15:12], register_source[1], register_address2);
 
     // --- register file 
     regfile rf(clock, register_write, register_address1, register_address2, instruction[15:12], result, program_counter_plus_eight, register_file_out1, register_file_out2);
@@ -70,4 +70,4 @@ module datapath(input  logic clock, reset,
     mux2 #(32) srcbmux(register_file_out2, extended_immediate, alu_source, source_b);
     alu alu(register_file_out1, source_b, alu_control, alu_result, alu_flags);
 
-endmodule:
+endmodule
