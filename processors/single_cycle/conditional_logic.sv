@@ -20,7 +20,7 @@
  * =====================================================================================
  */
 
-module condlogic(input  logic        clock, 
+module conditional_logic(input  logic        clock, 
                  input  logic        reset,
                  input  logic [3:0]  condition,
                  input  logic [3:0]  alu_flags,
@@ -38,11 +38,11 @@ module condlogic(input  logic        clock,
     logic conditional_execution;
 
     // --- flag state 
-    flopenr #(2)flagreg1(clk, reset, flag_write[1], alu_flags[3:2], flags[3:2]);
-    flopenr #(2)flagreg0(clk, reset, flag_write[0], alu_flags[1:0], flags[1:0]);
+    enabled_resettable_flop #(2) flag_register_one(clock, reset, flag_write[1], alu_flags[3:2], flags[3:2]);
+    enabled_resettable_flop #(2) flag_register_zero(clock, reset, flag_write[0], alu_flags[1:0], flags[1:0]);
 
     // --- combinational condition check logic 
-    condcheck cc(condition, flags, conditional_execution);
+    condition_check cc(condition, flags, conditional_execution);
 
     // --- conditional control signals 
     assign flag_write = potential_flag_write & {2{conditional_execution}};
@@ -52,7 +52,7 @@ module condlogic(input  logic        clock,
 
 endmodule
 
-module condcheck(input  logic [3:0] condition,
+module condition_check(input  logic [3:0] condition,
                  input  logic [3:0] flags,
                  output logic conditional_execution
              );

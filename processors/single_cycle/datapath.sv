@@ -48,26 +48,26 @@ module datapath(input  logic clock, reset,
     logic [3:0] register_address1, register_address2;
 
     // --- immediate extension 
-    extend ext(instruction[23:0], immediate_source, extended_immediate);
+    extender ext(instruction[23:0], immediate_source, extended_immediate);
 
     // next program_counter logic
-    mux2 #(32) pcmux(program_counter_plus_four, result, program_counter_source, next_program_counter);
-    flopr #(32) pcreg(clock, reset, next_program_counter, program_counter);
+    mux_two_to_one #(32) pcmux(program_counter_plus_four, result, program_counter_source, next_program_counter);
+    resettable_flop #(32) pcreg(clock, reset, next_program_counter, program_counter);
     adder #(32) pcadd1(program_counter, 32'b100, program_counter_plus_four);
     adder #(32) pcadd2(program_counter_plus_four, 32'b100, program_counter_plus_eight);
 
     // --- register file address muxes 
-    mux2 #(4) ra1mux(instruction[19:16], 4'b1111, register_source[0], register_address1);
-    mux2 #(4) ra2mux(instruction[3:0], instruction[15:12], register_source[1], register_address2);
+    mux_two_to_one #(4) ra1mux(instruction[19:16], 4'b1111, register_source[0], register_address1);
+    mux_two_to_one #(4) ra2mux(instruction[3:0], instruction[15:12], register_source[1], register_address2);
 
     // --- register file 
-    regfile rf(clock, register_write, register_address1, register_address2, instruction[15:12], result, program_counter_plus_eight, register_file_out1, register_file_out2);
+    register_file rf(clock, register_write, register_address1, register_address2, instruction[15:12], result, program_counter_plus_eight, register_file_out1, register_file_out2);
 
     // --- alu result mux 
-    mux2 #(32) resmux(alu_result, read_data, memory_to_register_file, result);
+    mux_two_to_one #(32) resmux(alu_result, read_data, memory_to_register_file, result);
 
     // --- alu source b mux; alu 
-    mux2 #(32) srcbmux(register_file_out2, extended_immediate, alu_source, source_b);
+    mux_two_to_one #(32) srcbmux(register_file_out2, extended_immediate, alu_source, source_b);
     alu alu(register_file_out1, source_b, alu_control, alu_result, alu_flags);
 
 endmodule
