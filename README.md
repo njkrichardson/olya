@@ -27,13 +27,15 @@ Generations into the future, twenty may seem a poor budget. Our descendents may 
 
 ### Untangling Terms: Architecture vs. Microarchitecture
 
-A computer **architecture** is an abstract machine which provides a model of computation for the programmer; it is comprised of an instruction set and operand locations. The instruction set 
-is the set of operations the machine can execute, i.e., semantic descriptions of how state is changed resultant from issuing an operation in a program. Ultimately every program must reduce to 
-a finite sequence with elements drawn from this minimal set of instructions. The operand locations describe where the operands manipulated by the instructions can be found (e.g., registers and memories). 
+A computer **architecture** is the programmer's view of the machine. It is an abstract machine which provides a model of computation for the programmer. An architecture is comprised  instruction set and operand locations. The instruction set 
+is the set of operations the machine can execute, i.e., semantic descriptions of how state is changed resultant from issuing an operation in a program. Ultimately every program must reduce to a finite sequence with elements drawn from this minimal set of instructions. 
+The operand locations describe where the operands manipulated by the instructions can be found (e.g., registers and memories). 
 
 Most often, many different hardware (physical) implementations of an architecture exist. The specific topological arrangement of registers, memories, arithmetic units, and other 
 building blocks is called its **microarchitecture**. Downstream from microarchitecture design, myriad fields of study focus their attention on the task of mapping this topological description into a physical arrangement of atoms. Once 
 the desired positions of the atoms are specified, billions of dollars and thousands of hours are dedicated to put them there. In essence, transforming sand to gold. 
+
+Confusingly, **architecture** is often overloaded to refer to a span of several of the layers of abstraction in a computer system; roughly from compiler software to logic design. Some architects also have expertise in a lower layer like device physics or fabrication, or a higher layer like application software and algorithms. In this guide I will use the terms architecture and microarchitecture according to their stricter definitions, except in the **Extra Bits** sections. 
 
 ### Motivation 
 In this guide you'll learn to think like a microarchitect. Microarchitects must command the hardware to obey the programmer's abstract machine model. Programmers ceaseslly demand more 
@@ -68,6 +70,49 @@ tighten the last bits of slack in the line; but no matter how clever, transistor
 sharks from all sides offering the next great panacea for computing performance: quantum, analog, thermodynamic, photonic, and biological computing paradigms, to name a few. The future is 
 ours to build. Much of the theoretical underpinnings of this work can be completed from the safety of the laboratory; but changing the world with these technologies, and shifting 
 the culture of the computing industry to amass the resources and cooperation to implement those ideas will demand a profound and deep understanding of computers as we know them. 
+
+## Extra Bits 
+
+The guide presented in this repository provides a simplified view of a microprocessor. Some explanations omit details in a way that could be misleading with respect to the real level of detail provided in advanced texts on computing architecture. For the curious, each page of the Wiki contains a section titled **Extra Bits** which discusses a few concepts in some greater depth. Each concept is typically a bonafide area of study in its own right, so these sections can only hope to give a teaser to the real content found in the associated references. The **Extra Bits** associated with the `README` introduces the concepts of: the CISC/RISC architecture properties, domain specific architectures, hardware-software co-design, Landauer's energetic limit for irreversible computation, the iron law of computing, Turing-completeness, and the concept of the ultimate RISC machine. 
+
+---
+
+#### RISC and CISC Architecture Properties
+When Arm, MIPS, or (eponymously) RISC-V are referred to as reduced instruction set computer (RISC) architectures, this is in reference to the typical level of complexity of each instruction in the instruction set. Even without an understanding of hardware, intuitively a logical `AND` instruction requires significantly less hardware, energy, and time to execute compared to x86's `PUNPCKHDQ` instruction which unpacks and interleaves high-order quadwords. In this sense architectures comprised primarily of simple instructions are more "RISC-like" (e.g., Arm, MIPS, SPARC) while architectures laden with complex instructions are more "CISC-like" (e.g., x86, Vax, System/360). 
+
+Operationally, it's useful to think RISC and CISC more like continous rather than binary valued properties of an architecture. Many people like to debate the merits of the RISC vs. CISC paradigm, but the argument is often oversimplified. In reality, things are complicated, and require consideration of the characteristics of the workload being targetted and fundamental physical tradeoffs between energy and entropy reduction. 
+
+#### Hardware Specialization and Domain Specific Architectures
+Hardware specialization and domain specific architectures (DSAs) are often overlooked in debates on RISC vs. CISC. Application-specific integrated circuits (ASICs) and DSAs are the epitome of CISC architectures. For example, the [Tensor Processing Unit](https://cloud.google.com/blog/products/ai-machine-learning/an-in-depth-look-at-googles-first-tensor-processing-unit-tpu) (TPU) architected by Google is a DSA with instructions like two-dimensional convolution and batched weight read. 
+
+Because the workload (i.e., the set of programs) being targetted by a DSA is relatively narrow, the entropy (informally, the uncertainty) of the distribution over the program space is relatively smaller. Architects and compiler writers can exploit the regular structure of the programs in a way that allows for relatively more state change (progress on the computation) per unit time (e.g., via speculation or parallelism). Further, if architects dedicate significant attention to understanding the algorithm being executed, often larger, more complex, more abstract hardware modules can be developed to increase performance, and/or the algorithm can be rewritten to better exploit the hardware. 
+
+For a concrete example, compare a graphics processing unit (GPU) and a general-purpose microprocessor (CPU). A GPU is a domain-specific architecture specialized for graphics (and increasingly, machine learning) workloads. A GPU consumes about 20pJ per instruction, whereas a CPU consumes about 2nJ per instruction; the CPU is roughly 100x less energy efficient per instruction. GPUs and CPUs differ in enumerable dimensions, but most importantly a GPU is designed to exploit the regularity observed in the empirical distribution of graphics and machine learning programs, and doesn't dedicate hardware or energy to techniques like branch prediction or speculative execution. Because of the gap between processor performance and memory performance, processors are forced to predict into the future; the advanced microarchitecture necessary to enable these methods costs time and energy. 
+
+#### The Iron Law
+Computer architects have a bad habit of declaring claims, assertions, observations, or intuitions to be "laws"; the iron law is an exception in that it is a simple but profound equality which describes any synchronous sequential state machine. This is an immense class of computer paradigms including most quantum and photonic computers. Additionally, it is simple to convince yourself that the iron law is practically a tautology; the concept does not invoke any nuanced hardware/physics assumptions. 
+
+Programmers ultimately care about the execution time of their programs; therefore iron law is most often expressed with the execution time as one side of the equality. In that form, the law states: 
+
+`execution times [s] = number of instructions * cycles/instruction * time/cycle [s]`
+
+More formally, this law can be cast in terms of expected execution time with respect to the empirical distribution of the number of cycles per instruction (CPI).   Admittedly, each of the terms on the right hand side is the result of a nonlinear interaction of an immense number of variables. That said, the equation helps ground any project to improve the performance (at least, in terms of execution time) of executing some program: you can either reduce the number of instructions 
+in the program, reduce the number of cycles required to execute any given instruction, or increase the clock rate on your machine (unfortunately, the clock rate is ultimately limited by the speed of light). 
+
+It's also illustrative to start thinking about this law in terms of the concepts we've already discussed. CISC architectures tend to have fewer instructions than RISC architectures but require more cycles to execute each instruction in expectation. Empirically the relative decrease/increase in the instruction count/CPI results in RISC architectures _generally_ being faster, at least on general, high variance workloads. On specific, low variance workloads ASICs and DSAs actually decrease the number of instructions so much that both the CPI and the clock period increase, but higher performance is still achieved. This explains why GPUs and other DSAs often cite signficantly lower clock rates (higher clock periods) than CPUs, much to the chagrin of the marketing teams. 
+
+#### Landauer's Limit 
+The discussion of RISC leads to a natural question: what is the "simplest" possible instruction or operation a computer can perform? One way of thinking about this is the concept of quantum phase space collapse, or informally, the irreversible/uninvertible nature of many data-manipulation instructions. Consider a two input `AND` operation/gate. Assuming the inputs are not stored/cached elsewhere, once the gate has transformed the inputs into an output (either a logical 0 or a logical 1), one cannot in expectation infer the inputs. 
+
+One quarter of the time (assuming uniformly distributed i.i.d. inputs) the output will be a logical 1, in which case we can infer with certainty that both inputs were logical 1. But three-quarters of the time we will be unable to infer or "invert" the values of the inputs. This property of the `AND` operation is called irreversibility. Landauer's principle is a physical principle pertaining to a lower bound (a minimum possible value) for the energy consumed by any irreversble computation. It holds that if an observer loses information about a closed physical system (like a computing machine), the observer loses the ability to extract work from that system (equivalently, the information-lossy computation consumed energy). 
+
+At room temperature (about 293K), the Landauer limit represents an energy of approximately 2.8zJ. For reference, a good modern hardware implementation can execute an 8-bit integer addition consuming about 30fJ; Landauer's limit beckons a 10,000,000x energy reduction. Interestingly, biological evolution has designed biological computing machines which execute (apparently) comparable operations in just 3aJ, but these systems still miss the mark by a factor of 1,000. Future computing machines may need to resort to accelerating objects lighter than electrons (or get more information per electron, as quantum hardware suggests) in order to approach Landauer's seductive limit. 
+
+#### Turing-Completeness 
+The statement "every program must reduce to a finite sequence with elements drawn from this **minimal set of instructions**" speaks to a sense of completeness of the instruction set. Even complex programs (operating systems, compilers, physical simulators, machine learning systems) written in modern feature-rich high-level languages (C++, JavaScript, CPython) are mapped to a massive sequence of `ADD`, `SUB`, `AND`, `ORR`, `LDR`, `STR`, and `B`. The concept of Turing-Completeness is a way to express the power of an instruction set; if an instruction set is Turing complete, it can run any program that a Turing machine can run, which is a very large set of programs.  
+
+One way to both concretize one end of the RISC/CISC spectrum is by invoking the idea of the [ultimate RISC machine](https://en.wikipedia.org/wiki/One-instruction_set_computer), which takes the RISC concept to an extreme, defining just one instuction, and therefore obviating the need to define machine language operation codes. Ironically, this instruction is sometimes relatively complex, making the term somewhat an oximoron. 
+
 
 ## Acknowledgements
 The implementation is inspired by and draws from the processor architected in the Arm edition of Harris & Harris' _Digital Design and Computer Architecture_ [2], specifically following the chapter on 
