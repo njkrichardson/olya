@@ -1,77 +1,108 @@
-import argparse 
-from functools import partial 
-import os 
-from typing import Union 
+import argparse
+from functools import partial
+import os
+from typing import Union
 
-from tabulate import tabulate 
+from tabulate import tabulate
 
-Path = Union[os.PathLike, str] 
+Path = Union[os.PathLike, str]
 
-parser = argparse.ArgumentParser(description="This script can be used to test the microprocessor implementations.\
+parser = argparse.ArgumentParser(
+    description="This script can be used to test the microprocessor implementations.\
                                               The test loads a short program into the instruction memory (starting \
                                               nominally at address 0x00), and executes the program, confirming that \
                                               the final state corresponds to the desired behavior. This script \
                                               compiles the necessary hardware modules (including the testbench), \
-                                              and executes the test.")
+                                              and executes the test."
+)
 parser.add_argument("--verbose", action="store_true")
 
-def get_project_root() -> Path: 
+
+def get_project_root() -> Path:
     _file_path: Path = os.path.abspath(__file__)
-    testing_directory_path: Path = os.path.dirname(_file_path) 
+    testing_directory_path: Path = os.path.dirname(_file_path)
     return os.path.dirname(testing_directory_path)
 
-def main(args): 
-    root_path: Path = get_project_root() 
+
+def main(args):
+    root_path: Path = get_project_root()
 
     # --- load and display the test program (if we're running in verbose mode)
-    if args.verbose: 
+    if args.verbose:
         program_path: Path = os.path.join(root_path, "programs/basic.dat")
         print("Displaying the test program: ")
         os.system(f"bat {program_path}")
 
-    
     root_join: callable = partial(os.path.join, root_path)
 
-    # basepath module names 
-    processor_modules: list = ["core", "datapath", "controller", "decoder", "conditional_logic"]
+    # basepath module names
+    processor_modules: list = [
+        "core",
+        "datapath",
+        "controller",
+        "decoder",
+        "conditional_logic",
+    ]
     hardware_utility_modules: list = ["alu", "combinational_logic", "state"]
     testbench_modules: list = ["testbench", "top"]
 
-    # module paths 
-    processor_modules_paths = [root_join("processors/single_cycle/" + module + ".sv") for module in processor_modules]
-    hardware_utility_modules_paths = [root_join("hardware_utils/" + module + ".sv") for module in hardware_utility_modules]
-    testbench_modules_paths = [root_join("tests/" + module + ".sv") for module in testbench_modules]
+    # module paths
+    processor_modules_paths = [
+        root_join("processors/single_cycle/" + module + ".sv")
+        for module in processor_modules
+    ]
+    hardware_utility_modules_paths = [
+        root_join("hardware_utils/" + module + ".sv")
+        for module in hardware_utility_modules
+    ]
+    testbench_modules_paths = [
+        root_join("tests/" + module + ".sv") for module in testbench_modules
+    ]
 
-    if args.verbose: 
-        table = list(zip(processor_modules, processor_modules_paths)) + \
-                list(zip(hardware_utility_modules, hardware_utility_modules_paths)) + \
-                list(zip(testbench_modules, testbench_modules_paths))
+    if args.verbose:
+        table = (
+            list(zip(processor_modules, processor_modules_paths))
+            + list(zip(hardware_utility_modules, hardware_utility_modules_paths))
+            + list(zip(testbench_modules, testbench_modules_paths))
+        )
 
         print(tabulate(table, headers=["Module name", "Path"]))
 
-    # this is required to set the correct absolute path for the instruction memory 
-    state_module_path = hardware_utility_modules_paths[-1] 
-    with open(state_module_path, 'r') as file:
+    # this is required to set the correct absolute path for the instruction memory
+    state_module_path = hardware_utility_modules_paths[-1]
+    with open(state_module_path, "r") as file:
         filedata = file.read()
 
     filedata = filedata.replace("REPLACEME", f"{program_path}")
 
-    with open(state_module_path, 'w') as file:
+    with open(state_module_path, "w") as file:
         file.write(filedata)
 
-    # compile the top level testbench with dependencies 
+    # compile the top level testbench with dependencies
     compiler = "iverilog"
-    compiler_flags = ["-g2005-sv", "-Wno-implicit", "-Wno-implicit-dimensions", "-Wno-portbind", "-Wno-select-range", "-Wno-timescale", "-Wno-sensitivity-entire-array", "-Wno-anachronisms"]
+    compiler_flags = [
+        "-g2005-sv",
+        "-Wno-implicit",
+        "-Wno-implicit-dimensions",
+        "-Wno-portbind",
+        "-Wno-select-range",
+        "-Wno-timescale",
+        "-Wno-sensitivity-entire-array",
+        "-Wno-anachronisms",
+    ]
     output = root_join("tests/test_out")
 
     print("\n\n\nCompiling the processor and associated modules")
-    os.system(f"{compiler} {' '.join(compiler_flags)} -o {output} {' '.join(processor_modules_paths)} {' '.join(hardware_utility_modules_paths)} {' '.join(testbench_modules_paths)} > /dev/null 2>&1")
+    os.system(
+        f"{compiler} {' '.join(compiler_flags)} -o {output} {' '.join(processor_modules_paths)} {' '.join(hardware_utility_modules_paths)} {' '.join(testbench_modules_paths)} > /dev/null 2>&1"
+    )
 
     print("\n\n\nRunning compiled test ouput...")
     os.system(f"{output}")
 
-if __name__=="__main__": 
-    args = parser.parse_args() 
-    if args.verbose: 
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    if args.verbose:
         print("Running in verbose mode...")
-    main(args) 
+    main(args)
