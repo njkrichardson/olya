@@ -170,7 +170,7 @@ There are two primary learning paths which both culminate in the implementation 
 
 The **bottom-up** path builds a processor assuming no prerequisite knowledge except for a basic understanding of electricity. At the outset, building a microprocessor feels completely removed from the quantum physical effects which determine the operation of a transistor. But, ultimately, one gets to revisit basic architecture or programming concepts in the "later" modules with the surprising new knowledge of how to implement these primitives in hardware. 
 
-Either way, both paths start at the same place. Whenever you're ready, go ahead and dive into the introductory module, which introduces background terminology and computer engineering basics that will be used throughout the guide. 
+Either way, both paths start at the same place. Whenever you're ready, go ahead and dive into the [introductory module](https://github.com/njkrichardson/olya/wiki/Computer-Engineering-Basics), which introduces background terminology and computer engineering basics that will be used throughout the guide. 
 
 ---
 
