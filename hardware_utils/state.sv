@@ -84,7 +84,7 @@ module instruction_memory(
   logic [31:0] RAM[63:0];
 
   initial
-      $readmemh("/Users/nickrichardson/Work/projects/armcore/programs/basic.dat", RAM);
+      $readmemh("REPLACEME", RAM);
 
   // truncate the least signifcant two bits of the address (word alignment)
   assign read_data = RAM[address[31:2]]; 
