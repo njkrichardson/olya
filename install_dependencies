@@ -1,0 +1,73 @@
+#!/bin/bash 
+
+platform="uknown"; 
+unamestr=$(uname); 
+
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    platform="Linux"; 
+    printf "Unsuported operating system: ${platform}. Run this script on MacOS."
+    printf "Exitting..."
+    exit 1
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    platform="MacOS"; 
+    platform_version=$(sw_vers -productVersion); 
+    printf "operating system: ${platform}\n"
+    printf "platform version: ${platform_version}\n"
+    printf "kernel: $(uname)\n"
+    printf "kernel version: $(uname -r)\n"
+    printf "hostname: $(hostname)\n"
+    printf "processor code: $(uname -p)\n"
+    printf "machine architecture: $(uname -m)\n"
+elif [[ "$OSTYPE" == "cygwin" ]]; then
+    platform="POSIX Windows"; 
+    printf "Unsuported operating system: ${platform}. Run this script on MacOS."
+    printf "Exitting..."
+    exit 1
+elif [[ "$OSTYPE" == "msys" ]]; then
+    platform="GNU Windows"; 
+    printf "Unsuported operating system: ${platform}. Run this script on MacOS."
+    printf "Exitting..."
+    exit 1
+elif [[ "$OSTYPE" == "win32" ]]; then
+    platform="Windows"; 
+    printf "Unsuported operating system: ${platform}. Run this script on MacOS."
+    printf "Exitting..."
+    exit 1
+elif [[ "$OSTYPE" == "freebsd"* ]]; then
+    platform="Free BSD"; 
+    printf "Unsuported operating system: ${platform}. Run this script on MacOS."
+    printf "Exitting..."
+    exit 1
+else
+    printf "Unsuported operating system: ${platform}. Run this script on MacOS."
+    printf "Exitting..."
+    exit 1
+fi
+
+# attempt to identify a HomeBrew installation
+which brew 2> /dev/null; 
+
+if [[ $? -eq 0 ]]; then 
+    brew_bin=$(which brew); 
+
+    # install icarus-verilog 
+    printf "Found brew installation: ${brew_bin}\n"; 
+    printf "Installing icarus-verilog...\n"; 
+    brew install icarus-verilog; 
+
+    # install bat and hexyl 
+    printf "\n"
+    printf "Installing bat\n"; 
+    brew install bat; 
+    
+    printf "\n"
+    printf "Installing hexyl\n"; 
+    brew install hexyl; 
+
+    printf "\n"
+    printf "Installed Dependencies! Exiting.\n"; 
+    exit 0
+else 
+    printf "Couldn't find a HomeBrew installation, please visit https://brew.sh/ to install Homebrew\n"; 
+    exit 1 
+fi
