@@ -57,6 +57,7 @@ memory and shorter execution times for their programs, which forces microarchite
 to the programmer. Hardware engineers and scientists bend and break assumptions in the underlying physics to provide microarchitects with ever more 
 performant physical building blocks to construct their processors and memories. 
 
+#### Intended Audience
 This guide is written for a curious programmer. Strictly speaking, she is (intellectually) shielded from the microarchitecture by the architecture. The set of programs one can run, and therefore dream up, or even **synthesize**, is identical. 
 But, different points in the space of physical implementations incur real consequences. Programmers must begin to think in the context of threads and interconnect, the conventional 
 Big O hammer obfuscates important realities. For instance: if matrix-matrix multiplication and matrix inversion both require a number of operations which scales cubically with respect to problem size, why can we execute neural networks so fast but Gaussian Processes so slowly? If matrix-vector multiplication requires a number of operations which scales quadratically with respect to problem size, why is matrix-matrix multiplication preferred from an energy efficiency perspective? Why does the energy required to multiply two numbers scale quadratically with the precision of their encoding? Why does just **moving** state between distinct locations in space now dominate the energy consumption of a computer, rather than the seemingly more complex task of transforming that state? 
@@ -65,6 +66,7 @@ Big O hammer obfuscates important realities. For instance: if matrix-matrix mult
 My aim is to give you a view of what goes on beneath the covers of your machine, and a richer view of the interaction between algorithms and their
 physical consequences in the traditional computing paradigm.
 
+#### Looking Forward
 We've come a long way. The first commercially produced microprocessor, the [Intel 4004](https://en.wikipedia.org/wiki/Intel_4004), was released in 1971. The circuit 
 is comprised of around 2,000 transistors, a clock rate of 750kHz (period 1.33us), built on a 10um technology node. In 2020, the [Apple M1](https://en.wikipedia.org/wiki/Apple_M1) was 
 released, an Arm-based system on chip (SoC) with 16 billion transistors, a 3.2GHz clock rate (period 312ps), built on a 5nm node. 
