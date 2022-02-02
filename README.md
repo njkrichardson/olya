@@ -3,8 +3,11 @@
       1. [Why Arm?](https://github.com/njkrichardson/olya#why-arm?)
       2. [Untangling Terms: Architecture vs. Microarchitecture](https://github.com/njkrichardson/olya#untangling-terms-architecture-vs-microarchitecture)
       3. [Motivation](https://github.com/njkrichardson/olya#motivation)
-  2. [Acknowledgements](https://github.com/njkrichardson/olya#acknowledgements)
-  3. [References](https://github.com/njkrichardson/olya#references)
+  2. [Getting Started](https://github.com/njkrichardson/olya#getting-started)
+  3. [How To Use This Guide](https://github.com/njkrichardson/olya#how-to-use-this-guide)
+  4. [Extra Bits](https://github.com/njkrichardson/olya#extra-bits)
+  6. [Acknowledgements](https://github.com/njkrichardson/olya#acknowledgements)
+  7. [References](https://github.com/njkrichardson/olya#references)
 ---
 
 ## Background 
@@ -71,6 +74,67 @@ sharks from all sides offering the next great panacea for computing performance:
 ours to build. Much of the theoretical underpinnings of this work can be completed from the safety of the laboratory; but changing the world with these technologies, and shifting 
 the culture of the computing industry to amass the resources and cooperation to implement those ideas will demand a profound and deep understanding of computers as we know them. 
 
+## Getting Started 
+
+We'll whet our appetites by executing a short program on the Arm core we'll be implementing. Later, we'll understand every detail of this test. We'll be able to read the assembly program, understand each bit of the associated machine code, and visualize the movement of electrons through atomic lattices as each instruction is executed. For now, we'll get a first exposure to the Arm architecture, and how hardware is described in practice using software. Specifically, we'll see our first program (at this point, a somewhat opaque program) written in one of the two dominant hardware description languages (HDL) used in professional computing design: SystemVerilog. 
+
+First, clone this repository using either `https` or `ssh`, as follows: 
+
+```bash 
+$ git clone https://github.com/njkrichardson/olya  # https 
+$ git clone git@github.com:njkrichardson/olya.git  # ssh 
+```
+
+Then, execute the dependency installer script by navigating to the `olya` directory and executing: 
+
+```bash 
+$ ./install_dependencies
+```
+
+The dependency installer assumes it is running on a MacOSX version later than OSX 10.11 (El Capitan) with the name `brew` resolved to a working HomeBrew installation (typically `brew` resolves to `/usr/local/bin/brew` which is a symbolic link to `/usr/local/Homebrew/bin/brew`). The core dependencies are an open-source SystemVerilog compiler called icarusVerilog for compiling our hardware description modules, and CPython3.8 for helper scripts. Unix `cat` and `hexdump` clones are also downloaded for more pleasant views of the code on the commandline. 
+
+Let's first glance at the hardware description language (HDL) code used to specify the processor we'll architect in this guide. Below I've included an image of the ouput of my terminal when I execute the following command from the `olya` directory: 
+
+```bash 
+$ bat processors/single_core/core.sv
+```
+<p align="center">
+  <img src="figs/arm_core_bat_out.png" alt="drawing" width="500"/>
+</p>
+
+The entire top-level processor HDL code fits in some 22 lines of text, but we are employing abstraction here; the `controller` and `datapath` modules are complex pieces of hardware specified in different files, and these modules instantiate yet simpler modules specified in other files, and so on. 
+
+The test program we'll use to exercise the processor is a sequence of instructions encoded as 32-bit binary numbers, and stored in a hexadecimal encoded text file with the instructions delimited by a newline. The machine language program is at `olya/programs/basic.dat`, and can be viewed using: 
+
+```bash 
+$ bat programs/basic.dat
+```
+
+<p align="center">
+  <img src="figs/basic_dat_bat_out.png" alt="drawing" width="300"/>
+</p>
+
+Humans don't read 1s and 0s, so it's more convenient to view the program using **assembly language** instructions; a set of readable mnemonics for each instruction. In assembly language programs code blocks can be logically separated using indentation and a label succeeded by a colon `:`. 
+
+```bash 
+$ bat programs/basic.asm
+```
+
+<p align="center">
+  <img src="figs/basic_asm_bat_out.png" alt="drawing" width="700"/>
+</p>
+
+
+## How To Use This Guide 
+
+There are two primary learning paths which both culminate in the implementation of your Arm processor. The **top-down** path begins at a high layer of abstraction: it begins with the module on architecture and programming, and concludes with the module on transistors and the physics of computation. Learner's following the top-down path get to dessert first in seing code and a complete processor, but can't yet understand many of the juicy details. It may feel intimidating or dissatisfying to have to skim over sections with terms and concepts introduced in the modules on hardware and microarchitecture. 
+
+The **bottom-up** path builds a processor from nothing. At the outset, building a microprocessor feels completely removed from the quantum physical effects which determine the operation of a transistor. But, ultimately one gets to review basic architecture or programming concepts with the surprising new knowledge of how to implement these primitives in hardware. 
+
+Either way, both paths start at the same place. Whenever you're ready, go ahead and dive into the introductory module, which introduces background terminology and computer engineering basics. 
+
+---
+
 ## Extra Bits 
 
 The guide presented in this repository provides a simplified view of a microprocessor. Some explanations omit details in a way that could be misleading with respect to the real level of detail provided in advanced texts on computing architecture. For the curious, each page of the Wiki contains a section titled **Extra Bits** which discusses a few concepts in some greater depth. Each concept is typically a bonafide area of study in its own right, so these sections can only hope to give a teaser to the real content found in the associated references. The **Extra Bits** associated with the `README` introduces the concepts of: the CISC/RISC architecture properties, domain specific architectures, hardware-software co-design, Landauer's energetic limit for irreversible computation, the iron law of computing, Turing-completeness, and the concept of the ultimate RISC machine. 
@@ -113,6 +177,7 @@ The statement "every program must reduce to a finite sequence with elements draw
 
 One way to both concretize one end of the RISC/CISC spectrum is by invoking the idea of the [ultimate RISC machine](https://en.wikipedia.org/wiki/One-instruction_set_computer), which takes the RISC concept to an extreme, defining just one instuction, and therefore obviating the need to define machine language operation codes. Ironically, this instruction is sometimes relatively complex, making the term somewhat an oximoron. 
 
+---
 
 ## Acknowledgements
 The implementation is inspired by and draws from the processor architected in the Arm edition of Harris & Harris' _Digital Design and Computer Architecture_ [2], specifically following the chapter on 
