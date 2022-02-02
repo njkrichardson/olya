@@ -75,8 +75,7 @@ Despite this compounded growth, unmatched by any other field in engineering, per
 the culmination of Moore's law and Dennard scaling (linear constant field scaling). Advances in high numerical aperture optics, material science, and transistor physics will 
 tighten the last bits of slack in the line; but no matter how clever, transistors cannot be smaller than atoms. Blood in the water and an inflated economic environment has drawn 
 sharks from all sides offering the next great panacea for computing performance: quantum, analog, thermodynamic, photonic, and biological computing paradigms, to name a few. The future is 
-ours to build. Much of the theoretical underpinnings of this work can be completed from the safety of the laboratory; but changing the world with these technologies, and shifting 
-the culture of the computing industry to amass the resources and cooperation to implement those ideas will demand a profound and deep understanding of computers as we know them. 
+ours to build. Much of the theoretical underpinnings of this work can be completed from the safety of the laboratory. That said, changing the world with these ideas will demand a profound and deep understanding of computers as we know them. 
 
 ## Getting Started 
 
