@@ -139,6 +139,34 @@ script by including the argument `--verbose`.
 $ python3 tests/test_core.py --verbose 
 ```
 
+```bash
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+Module name          Path
+-------------------  ----------------------------------------------------------------------------------------
+core                 /Users/nickrichardson/Work/projects/armcore/processors/single_cycle/core.sv
+datapath             /Users/nickrichardson/Work/projects/armcore/processors/single_cycle/datapath.sv
+controller           /Users/nickrichardson/Work/projects/armcore/processors/single_cycle/controller.sv
+decoder              /Users/nickrichardson/Work/projects/armcore/processors/single_cycle/decoder.sv
+conditional_logic    /Users/nickrichardson/Work/projects/armcore/processors/single_cycle/conditional_logic.sv
+alu                  /Users/nickrichardson/Work/projects/armcore/hardware_utils/alu.sv
+combinational_logic  /Users/nickrichardson/Work/projects/armcore/hardware_utils/combinational_logic.sv
+state                /Users/nickrichardson/Work/projects/armcore/hardware_utils/state.sv
+testbench            /Users/nickrichardson/Work/projects/armcore/tests/testbench.sv
+top                  /Users/nickrichardson/Work/projects/armcore/tests/top.sv
+
+Compiling the processor and associated modules...
+
+Running compiled test ouput...
+
+Simulation succeeded
+
+** VVP Stop(0) **
+** Flushing output streams.
+** Current simulation time is 205 ticks.
+> 
+```
+
+We can see all of the modules used to compile our processor, and that the simulation succeeded! We can simply type `finish` at the carrot repl prompt that we are dumped into. Apparently, we have HDL which implements a processor which can execute programs, I hope this serves as motivation to understand every piece of how the processor works, from atoms to architecture. 
 
 ## How To Use This Guide 
 
