@@ -55,6 +55,11 @@ if [[ $? -eq 0 ]]; then
     printf "Installing icarus-verilog...\n"; 
     brew install icarus-verilog; 
 
+    # install Python 
+    printf "\n"
+    printf "Installing Python3.8\n"; 
+    brew install python@3.8; 
+
     # install bat and hexyl 
     printf "\n"
     printf "Installing bat\n"; 
