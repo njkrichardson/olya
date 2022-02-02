@@ -57,7 +57,7 @@ memory and shorter execution times for their programs, which forces microarchite
 to the programmer. Hardware engineers and scientists bend and break assumptions in the underlying physics to provide microarchitects with ever more 
 performant physical building blocks to construct their processors and memories. 
 
-This guide is written for a curious programmer. Strictly speaking, she is (intellectually) shielded from the microarchitecture by the architecture. The set of programs one can run, and thus dream up, or even **synthesize**, is identical. 
+This guide is written for a curious programmer. Strictly speaking, she is (intellectually) shielded from the microarchitecture by the architecture. The set of programs one can run, and therefore dream up, or even **synthesize**, is identical. 
 But, different points in the space of physical implementations incur real consequences. Programmers must begin to think in the context of threads and interconnect, the conventional 
 Big O hammer obfuscates important realities. For instance: if matrix-matrix multiplication and matrix inversion both require a number of operations which scales cubically with respect to problem size, why can we execute neural networks so fast but Gaussian Processes so slowly? If matrix-vector multiplication requires a number of operations which scales quadratically with respect to problem size, why is matrix-matrix multiplication preferred from an energy efficiency perspective? Why does the energy required to multiply two numbers scale quadratically with the precision of their encoding? Why does just **moving** state between distinct locations in space now dominate the energy consumption of a computer, rather than the seemingly more complex task of transforming that state? 
 
