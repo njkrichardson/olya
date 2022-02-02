@@ -1,3 +1,5 @@
+![release_tag](https://img.shields.io/github/v/tag/njkrichardson/olya)
+
 ## Contents 
   1. [Background](https://github.com/njkrichardson/olya#background)
       1. [Why Arm?](https://github.com/njkrichardson/olya#why-arm?)
