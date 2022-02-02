@@ -14,7 +14,6 @@ parser = argparse.ArgumentParser(description="This script can be used to test th
                                               compiles the necessary hardware modules (including the testbench), \
                                               and executes the test.")
 parser.add_argument("--verbose", action="store_true")
-#iverilog -g2005-sv controller.sv conditional_logic.sv ../../hardware_utils/utils.v decoder.sv datapath.sv core.sv ../../hardware_utils/alu.sv ../../hardware_utils/state.sv ../../tests/testbench.sv ../../tests/top.sv
 
 def get_project_root() -> Path: 
     _file_path: Path = os.path.abspath(__file__)
@@ -62,11 +61,13 @@ def main(args):
 
     # compile the top level testbench with dependencies 
     compiler = "iverilog"
-    compiler_flags = "-g2005-sv"
+    compiler_flags = ["-g2005-sv", "-Wno-implicit", "-Wno-implicit-dimensions", "-Wno-portbind", "-Wno-select-range", "-Wno-timescale", "-Wno-sensitivity-entire-array", "-Wno-anachronisms"]
     output = root_join("tests/test_out")
-    print("Compiling the processor and associated modules")
-    os.system(f"{compiler} {compiler_flags} -o {output} {' '.join(processor_modules_paths)} {' '.join(hardware_utility_modules_paths)} {' '.join(testbench_modules_paths)}")
-    print("Running compiled test ouput...")
+
+    print("\n\n\nCompiling the processor and associated modules")
+    os.system(f"{compiler} {' '.join(compiler_flags)} -o {output} {' '.join(processor_modules_paths)} {' '.join(hardware_utility_modules_paths)} {' '.join(testbench_modules_paths)} > /dev/null 2>&1")
+
+    print("\n\n\nRunning compiled test ouput...")
     os.system(f"{output}")
 
 if __name__=="__main__": 
