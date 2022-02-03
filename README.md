@@ -107,7 +107,7 @@ $ bat processors/single_core/core.sv
   <img src="figs/arm_core_bat_out.png" alt="drawing" width="500"/>
 </p>
 
-The entire top-level processor HDL code fits in some 22 lines of text, but we are employing abstraction here. We discuss the technique of abstraction in [Module 1: Basic Computer Engineering](https://github.com/njkrichardson/olya/wiki/Basic-Computer-Engineering). Namely, the `controller` and `datapath` modules highlighted in green above are themselves complex pieces of hardware specified in different files. These modules instantiate yet simpler modules specified in other files, and so on. 
+The entire top-level processor HDL code fits in some 22 lines of text, but we are employing abstraction here. We discuss the technique of abstraction in [Module 1: Computer Engineering Basics](https://github.com/njkrichardson/olya/wiki/Computer-Engineering-Basics). Namely, the `controller` and `datapath` modules highlighted in green above are themselves complex pieces of hardware specified in different files. These modules instantiate yet simpler modules specified in other files, and so on. 
 
 For example, the `datapath` of the processor describes the logic for how the state of bits in the registers and memories is changed resultant from executing an instruction. We'll learn about the datapath and the controller of a process in [Module 7: Microarchitecture](https://github.com/njkrichardson/olya/wiki/Microarchitecure). We'll learn about state, registers, and memories in [Module 3: Sequential Logic and Finite State Machines](https://github.com/njkrichardson/olya/wiki/Sequential-Logic-and-Finite-State-Machine) and [Module 4: Microarchitectural Building Blocks](https://github.com/njkrichardson/olya/wiki/Microarchitectural-Building-Blocks). 
 
