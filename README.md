@@ -97,51 +97,147 @@ $ ./install_dependencies
 
 The dependency installer assumes it is running on a MacOSX version later than OSX 10.11 (El Capitan) with the name `brew` resolved to a working HomeBrew installation (typically `brew` resolves to `/usr/local/bin/brew` which is a symbolic link to `/usr/local/Homebrew/bin/brew`). The core dependencies are an open-source SystemVerilog compiler called [IcarusVerilog](https://iverilog.fandom.com/wiki/Main_Page) for compiling our hardware description modules, and CPython3.8 for helper scripts. [Bat](https://github.com/sharkdp/bat) is a Unix `cat` clone with syntax highlighting and git integration. [Hexyl](https://github.com/sharkdp/hexyl) is a simple hex viewer for the terminal. Both libraries are open-source and implemented in the [Rust](https://www.rust-lang.org/) programming language. 
 
-Let's first glance at the HDL code used to specify the processor we'll architect in this guide. Below I've included an image of the ouput of my terminal when I execute the following command from the `olya` directory: 
+Let's first glance at the HDL code used to specify the processor we'll architect in this guide. You can execute `bat processors/single_core/core.sv` to display the code in your terminal, but I've pased the code below for convenience. 
 
-```bash 
-$ bat processors/single_core/core.sv
+```verilog
+module arm(input  logic        clock, reset,
+           output logic [31:0] program_counter,
+           input  logic [31:0] instruction,
+           output logic        data_memory_write_enable,
+           output logic [31:0] alu_result, write_data,
+           input  logic [31:0] read_data);
+
+  logic [3:0] alu_flags;
+  logic       register_write_enable, 
+              alu_source, memory_to_register, program_counter_source;
+  logic [1:0] register_source, immediate_source, alu_control;
+
+  controller controller(clock, reset, instruction[31:12], alu_flags, 
+               register_source, register_write_enable, immediate_source, 
+               alu_source, alu_control,
+               data_memory_write_enable, memory_to_register, program_counter_source);
+  datapath datapath(clock, reset, 
+              register_source, register_write_enable, immediate_source,
+              alu_source, alu_control,
+              memory_to_register, program_counter_source,
+              alu_flags, program_counter, instruction,
+              alu_result, write_data, read_data);
+endmodule
 ```
-<p align="center">
-  <img src="figs/arm_core_bat_out.png" alt="drawing" width="500"/>
-</p>
 
-The entire top-level processor HDL code fits in some 22 lines of text, but we are employing abstraction here. We discuss the technique of abstraction in [Module 1: Computer Engineering Basics](https://github.com/njkrichardson/olya/wiki/Computer-Engineering-Basics). Namely, the `controller` and `datapath` modules highlighted in green above are themselves complex pieces of hardware specified in different files. These modules instantiate yet simpler modules specified in other files, and so on. 
+The entire top-level processor HDL code fits in some 22 lines of HDL, but we are employing abstraction here. We discuss the technique of abstraction in [Module 1: Computer Engineering Basics](https://github.com/njkrichardson/olya/wiki/Computer-Engineering-Basics). Namely, the `controller` and `datapath` modules highlighted in green above are themselves complex pieces of hardware specified in different files. These modules instantiate yet simpler modules specified in other files, and so on. 
 
 For example, the `datapath` of the processor describes the logic for how the state of bits in the registers and memories is changed resultant from executing an instruction. We'll learn about the datapath and the controller of a process in [Module 7: Microarchitecture](https://github.com/njkrichardson/olya/wiki/Microarchitecure). We'll learn about state, registers, and memories in [Module 3: Sequential Logic and Finite State Machines](https://github.com/njkrichardson/olya/wiki/Sequential-Logic-and-Finite-State-Machine) and [Module 4: Microarchitectural Building Blocks](https://github.com/njkrichardson/olya/wiki/Microarchitectural-Building-Blocks). 
 
-We can view the datapath of the processor by executing the following command from the `olya` directory: 
+We can view the datapath of the processor which is in `processors/single_cycle/datapath.sv`:
 
-```bash 
-$ bat processors/single_cycle/datapath.sv
+```verilog
+module datapath(input  logic clock, reset,
+                input  logic [1:0] register_source,
+                input  logic register_write,
+                input  logic [1:0] immediate_source,
+                input  logic alu_source,
+                input  logic [1:0] alu_control,
+                input  logic memory_to_register_file,
+                input  logic program_counter_source,
+                output logic [3:0] alu_flags,
+                output logic [31:0] program_counter,
+                input  logic [31:0] instruction,
+                output logic [31:0] alu_result, register_file_out2,
+                input  logic [31:0] read_data
+            );
+
+    // --- internal datapath nodes 
+    logic [31:0] next_program_counter, program_counter_plus_four, program_counter_plus_eight;
+    logic [31:0] extended_immediate, register_file_out1, source_b, result;
+    logic [3:0] register_address1, register_address2;
+
+    // --- immediate extension 
+    extender ext(instruction[23:0], immediate_source, extended_immediate);
+
+    // next program_counter logic
+    mux_two_to_one #(32) pcmux(program_counter_plus_four, result, program_counter_source, next_program_counter);
+    resettable_flop #(32) pcreg(clock, reset, next_program_counter, program_counter);
+    adder #(32) pcadd1(program_counter, 32'b100, program_counter_plus_four);
+    adder #(32) pcadd2(program_counter_plus_four, 32'b100, program_counter_plus_eight);
+
+    // --- register file address muxes 
+    mux_two_to_one #(4) ra1mux(instruction[19:16], 4'b1111, register_source[0], register_address1);
+    mux_two_to_one #(4) ra2mux(instruction[3:0], instruction[15:12], register_source[1], register_address2);
+
+    // --- register file 
+    register_file rf(clock, register_write, register_address1, register_address2, instruction[15:12], result, program_counter_plus_eight, register_file_out1, register_file_out2);
+
+    // --- alu result mux 
+    mux_two_to_one #(32) resmux(alu_result, read_data, memory_to_register_file, result);
+
+    // --- alu source b mux; alu 
+    mux_two_to_one #(32) srcbmux(register_file_out2, extended_immediate, alu_source, source_b);
+    alu alu(register_file_out1, source_b, alu_control, alu_result, alu_flags);
+
+endmodule
 ```
-
-<p align="center">
-  <img src="figs/datapath_bat_out.png" alt="drawing" width="1000"/>
-</p>
 
 The datapath is comprised of largely combinational logic like **multiplexers**, **adders**, **extenders**, and **arithmetic logic units**. Combinational circuits produce outputs as a function of the current inputs, with no memory of previous inputs. We learn about combinational logic in [Module 2: Combinational Logic](https://github.com/njkrichardson/olya/wiki/Combinational-Logic). 
 
-The test program we'll use to exercise the processor is a sequence of machine instructions encoded as 32-bit binary numbers (since we build a 32-bit processor). This sequence of instructions, the **program**, is stored as a hexadecimal encoded text file.. The machine language program is at `olya/programs/basic.dat`, and can be viewed using: 
+The test program we'll use to exercise the processor is a sequence of machine instructions encoded as 32-bit binary numbers (since we build a 32-bit processor). This sequence of instructions, the **program**, is stored as a hexadecimal encoded text file.. The machine language program is at `olya/programs/basic.dat`:
 
-```bash 
-$ bat programs/basic.dat
+```bash
+E04F000F
+E2802005
+E280300C
+E2437009
+E1874002
+E0035004
+E0855004
+E0558007
+0A00000C
+E0538004
+AA000000
+E2805000
+E0578002
+B2857001
+E0477002
+E5837054
+E5902060
+E08FF000
+E280200E
+EA000001
+E280200D
+E280200A
+E5802064
 ```
 
-<p align="center">
-  <img src="figs/basic_dat_bat_out.png" alt="drawing" width="300"/>
-</p>
+Humans don't read 1s and 0s (or hex, usually), so it's more convenient to view the program using **assembly language** instructions. The assembly language of a computer is a set of readable mnemonics and a mapping from each mnemonic to its encoding as a binary machine langauge instruction. We learn about assembly language in [Module 6: Architecture](https://github.com/njkrichardson/olya/wiki/Architecture). In assembly language programs code, short sections of the program are often logically separated (analagous to how procedures/functions are separated in higher level languages). These named code blocks are denoted to most assemblers by indentating the code block and wrapping it with a string-valued label succeeded by a colon `:`. The assembly language program is contained in ` programs/basic.asm`. 
 
-Humans don't read 1s and 0s (or hex, usually), so it's more convenient to view the program using **assembly language** instructions. The assembly language of a computer is a set of readable mnemonics and a mapping from each mnemonic to its encoding as a binary machine langauge instruction. We learn about assembly language in [Module 6: Architecture](https://github.com/njkrichardson/olya/wiki/Architecture). In assembly language programs code, short sections of the program are often logically separated (analagous to how procedures/functions are separated in higher level languages). These named code blocks are denoted to most assemblers by indentating the code block and wrapping it with a string-valued label succeeded by a colon `:`. 
-
-```bash 
-$ bat programs/basic.asm
+```assembly
+    MAIN:
+         SUB R0, R15, R15       ; R0 = 0
+         ADD R2, R0, #5         ; R2 = 5
+         ADD R3, R0, #12        ; R3 = 12
+         SUB R7, R3, #9         ; R7 = 3
+         ORR R4, R7, R2         ; R4 = 3 OR 5 = 7               1110 000 1100 0 0111 0100 0000 0000 0010 E1874002 0x10
+         AND R5, R3, R4         ; R5 = 12 AND 7 = 4             1110 000 0000 0 0011 0101 0000 0000 0100 E0035004 0x14
+         ADD R5, R5, R4         ; R5 = 4 + 7 = 11               1110 000 0100 0 0101 0101 0000 0000 0100 E0855004 0x18
+         SUBS R8, R5, R7        ; R8 <= 11 - 3 = 8, set Flags   1110 000 0010 1 0101 1000 0000 0000 0111 E0558007 0x1c
+         BEQ END                ; shouldn't be taken            0000 1010 0000  0000 0000 0000 0000 1100 0A00000C 0x20
+         SUBS R8, R3, R4        ; R8 = 12 - 7  = 5              1110 000 0010 1 0011 1000 0000 0000 0100 E0538004 0x24
+         BGE AROUND             ; should be taken               1010 1010 0000  0000 0000 0000 0000 0000 AA000000 0x28
+         ADD R5, R0, #0         ; should be skipped             1110 001 0100 0 0000 0101 0000 0000 0000 E2805000 0x2c
+   AROUND:
+         SUBS R8, R7, R2        ; R8 = 3 - 5 = -2, set Flags    1110 000 0010 1 0111 1000 0000 0000 0010 E0578002 0x30
+         ADDLT R7, R5, #1       ; R7 = 11 + 1 = 12              1011 001 0100 0 0101 0111 0000 0000 0001 B2857001 0x34
+         SUB R7, R7, R2         ; R7 = 12 - 5 = 7               1110 000 0010 0 0111 0111 0000 0000 0010 E0477002 0x38
+         STR R7, [R3, #84]      ; mem[12+84] = 7
+         LDR R2, [R0, #96]      ; R2 = mem[96] = 7              1110 010 1100 1 0000 0010 0000 0110 0000 E5902060 0x40
+         ADD R15, R15, R0       ; PC <- PC + 8 (skips next)     1110 000 0100 0 1111 1111 0000 0000 0000 E08FF000 0x44
+         ADD R2, R0, #14        ; shouldn't happen              1110 001 0100 0 0000 0010 0000 0000 0001 E280200E 0x48
+         B END                  ; always taken                  1110 1010 0000 0000 0000 0000 0000 0001  EA000001 0x4c
+         ADD R2, R0, #13        ; shouldn't happen              1110 001 0100 0 0000 0010 0000 0000 0001 E280200D 0x50
+         ADD R2, R0, #10        ; shouldn't happen              1110 001 0100 0 0000 0010 0000 0000 0001 E280200A 0x54
+   END:
+         STR R2, [R0, #100]     ; mem[100] = 7                  1110 010 1100 0 0000 0010 0000 0101 0100 E5802064 0x58
 ```
-
-<p align="center">
-  <img src="figs/basic_asm_bat_out.png" alt="drawing" width="700"/>
-</p>
-
 We don't need to understand any of the details of this program just yet. We'll look more at programming in assembly and higher-level languages in [Module 8: Programming](https://github.com/njkrichardson/olya/wiki/Programming). Notice the comment on the last line. A comment is a section of the program which is ignored by the assembler and therefore not included in the machine language program; comments are preceded by a semicolon `;`, after which the remainder of the line is ignored by the assembler until a newline `\n` character is reached. 
 
 The comment on line 52 tells us that the last instruction stores the decimal value 7 into the memory at address 100; this is the ad hoc condition we'll check to ensure our processor is running correctly. We can execute the testbench module via a simple provided Python script which (for now) handles all of module compilation and dependency structure. Later we'll execute the test by hand one we've gained some familiarity with hardware description languages and how they differ from software languages. We can see the inner workings of the test 
