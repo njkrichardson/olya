@@ -239,8 +239,7 @@ One way to both concretize one end of the RISC/CISC spectrum is by invoking the 
 ---
 
 ## Acknowledgements
-The implementation is inspired by and draws from the processor architected in the Arm edition of Harris & Harris' _Digital Design and Computer Architecture_ [2], specifically following the chapter on 
-microarchitecture and the hardware description language (HDL) modules provided in the accompanying site [2]. 
+The implementation and writing here is inspired by and often draws directly from the the Arm edition of Harris & Harris' _Digital Design and Computer Architecture_ [2], specifically the order of the learning modules (although I diverge slightly and separate the sections differently). I rearange some of the content ordering in a way that feels more intuitive to me, and I often update exercises and examples to the most recent cases available. The motivation section of this README is modelled by the introduction to their book. The hardware description language (HDL) implementation is guided heavily by the modules provided in the accompanying site [2]. 
 
 I actually had the good fortune to take David Harris' computer architecture course as an undergraduate math major at Harvey Mudd College. Although I left the course with a measely B+ grade and a confused understanding of computers, what David Harris demonstrated to me in those Monday and Wednesday morning hours was a gift I can't possibly repay: a man with the insane drive to truly understand a computer, from atoms to architectures.  
 
