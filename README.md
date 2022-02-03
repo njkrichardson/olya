@@ -6,10 +6,9 @@
       2. [Untangling Terms: Architecture vs. Microarchitecture](https://github.com/njkrichardson/olya#untangling-terms-architecture-vs-microarchitecture)
       3. [Motivation](https://github.com/njkrichardson/olya#motivation)
   2. [Getting Started](https://github.com/njkrichardson/olya#getting-started)
-  3. [How To Use This Guide](https://github.com/njkrichardson/olya#how-to-use-this-guide)
-  4. [Extra Bits](https://github.com/njkrichardson/olya#extra-bits)
-  6. [Acknowledgements](https://github.com/njkrichardson/olya#acknowledgements)
-  7. [References](https://github.com/njkrichardson/olya#references)
+  3. [Extra Bits](https://github.com/njkrichardson/olya#extra-bits)
+  4. [Acknowledgements](https://github.com/njkrichardson/olya#acknowledgements)
+  5. [References](https://github.com/njkrichardson/olya#references)
 ---
 
 ## Background 
@@ -81,7 +80,7 @@ ours to build. Much of the theoretical underpinnings of this work can be complet
 
 We'll whet our appetites by executing a short program on the Arm core we'll be implementing. Later, we'll understand every detail of this test. We'll be able to read the assembly program, understand each bit of the associated machine code, and understand how bits of data move through the datapath of our processor to produce the expected results. 
 
-For now, we'll get a first exposure to the Arm architecture by viewing its assembly language, and see how hardware is described in practice using hardware description languages (HDLs). Specifically, let's look first at the high-level implementation of our Arm core, written in one of the two dominant hardware description languages (HDL) used in professional computing design: SystemVerilog. 
+For now, we'll get a first exposure to the Arm architecture by viewing its assembly language, and see how hardware is described in practice using **hardware description languages** (HDLs). We'll learn about these tools thoroughly in [Module 5: Hardware Description Languages](https://github.com/njkrichardson/olya/wiki/Hardware-Description-Languages). Specifically, let's look first at the high-level implementation of our Arm core, written in one of the two dominant HDLs used in professional computing design: SystemVerilog. 
 
 First, clone this repository using either `https` or `ssh`, as follows: 
 
@@ -96,7 +95,7 @@ Then, execute the dependency installer script by navigating to the `olya` direct
 $ ./install_dependencies
 ```
 
-The dependency installer assumes it is running on a MacOSX version later than OSX 10.11 (El Capitan) with the name `brew` resolved to a working HomeBrew installation (typically `brew` resolves to `/usr/local/bin/brew` which is a symbolic link to `/usr/local/Homebrew/bin/brew`). The core dependencies are an open-source SystemVerilog compiler called icarusVerilog for compiling our hardware description modules, and CPython3.8 for helper scripts. Unix `cat` and `hexdump` clones are also downloaded for more pleasant views of the code on the commandline. 
+The dependency installer assumes it is running on a MacOSX version later than OSX 10.11 (El Capitan) with the name `brew` resolved to a working HomeBrew installation (typically `brew` resolves to `/usr/local/bin/brew` which is a symbolic link to `/usr/local/Homebrew/bin/brew`). The core dependencies are an open-source SystemVerilog compiler called [IcarusVerilog](https://iverilog.fandom.com/wiki/Main_Page) for compiling our hardware description modules, and CPython3.8 for helper scripts. [Bat](https://github.com/sharkdp/bat) is a Unix `cat` clone with syntax highlighting and git integration. [Hexyl](https://github.com/sharkdp/hexyl) is a simple hex viewer for the terminal. Both libraries are open-source and implemented in the [Rust](https://www.rust-lang.org/) programming language. 
 
 Let's first glance at the HDL code used to specify the processor we'll architect in this guide. Below I've included an image of the ouput of my terminal when I execute the following command from the `olya` directory: 
 
@@ -107,9 +106,23 @@ $ bat processors/single_core/core.sv
   <img src="figs/arm_core_bat_out.png" alt="drawing" width="500"/>
 </p>
 
-The entire top-level processor HDL code fits in some 22 lines of text, but we are employing abstraction here; the `controller` and `datapath` modules are complex pieces of hardware specified in different files, and these modules instantiate yet simpler modules specified in other files, and so on. 
+The entire top-level processor HDL code fits in some 22 lines of text, but we are employing abstraction here. We discuss the technique of abstraction in [Module 1: Computer Engineering Basics](https://github.com/njkrichardson/olya/wiki/Computer-Engineering-Basics). Namely, the `controller` and `datapath` modules highlighted in green above are themselves complex pieces of hardware specified in different files. These modules instantiate yet simpler modules specified in other files, and so on. 
 
-The test program we'll use to exercise the processor is a sequence of instructions encoded as 32-bit binary numbers (since we build a 32-bit processor), and stored in a hexadecimal encoded text file with the instructions delimited by a newline. The machine language program is at `olya/programs/basic.dat`, and can be viewed using: 
+For example, the `datapath` of the processor describes the logic for how the state of bits in the registers and memories is changed resultant from executing an instruction. We'll learn about the datapath and the controller of a process in [Module 7: Microarchitecture](https://github.com/njkrichardson/olya/wiki/Microarchitecure). We'll learn about state, registers, and memories in [Module 3: Sequential Logic and Finite State Machines](https://github.com/njkrichardson/olya/wiki/Sequential-Logic-and-Finite-State-Machine) and [Module 4: Microarchitectural Building Blocks](https://github.com/njkrichardson/olya/wiki/Microarchitectural-Building-Blocks). 
+
+We can view the datapath of the processor by executing the following command from the `olya` directory: 
+
+```bash 
+$ bat processors/single_cycle/datapath.sv
+```
+
+<p align="center">
+  <img src="figs/datapath_bat_out.png" alt="drawing" width="1000"/>
+</p>
+
+The datapath is comprised of largely combinational logic like **multiplexers**, **adders**, **extenders**, and **arithmetic logic units**. Combinational circuits produce outputs as a function of the current inputs, with no memory of previous inputs. We learn about combinational logic in [Module 2: Combinational Logic](https://github.com/njkrichardson/olya/wiki/Combinational-Logic). 
+
+The test program we'll use to exercise the processor is a sequence of machine instructions encoded as 32-bit binary numbers (since we build a 32-bit processor). This sequence of instructions, the **program**, is stored as a hexadecimal encoded text file.. The machine language program is at `olya/programs/basic.dat`, and can be viewed using: 
 
 ```bash 
 $ bat programs/basic.dat
@@ -119,7 +132,7 @@ $ bat programs/basic.dat
   <img src="figs/basic_dat_bat_out.png" alt="drawing" width="300"/>
 </p>
 
-Humans don't read 1s and 0s (or hex, usually), so it's more convenient to view the program using **assembly language** instructions; a set of readable mnemonics for each instruction. In assembly language programs code blocks can be logically separated (analagous to how procedures/functions are separated in higher level languages) using indentation and a label succeeded by a colon `:`. 
+Humans don't read 1s and 0s (or hex, usually), so it's more convenient to view the program using **assembly language** instructions. The assembly language of a computer is a set of readable mnemonics and a mapping from each mnemonic to its encoding as a binary machine langauge instruction. We learn about assembly language in [Module 6: Architecture](https://github.com/njkrichardson/olya/wiki/Architecture). In assembly language programs code, short sections of the program are often logically separated (analagous to how procedures/functions are separated in higher level languages). These named code blocks are denoted to most assemblers by indentating the code block and wrapping it with a string-valued label succeeded by a colon `:`. 
 
 ```bash 
 $ bat programs/basic.asm
@@ -129,7 +142,9 @@ $ bat programs/basic.asm
   <img src="figs/basic_asm_bat_out.png" alt="drawing" width="700"/>
 </p>
 
-We don't need to understand any of the details of this program just yet. Notice from the comment on the last line of the program that the last instruction stores the decimal value 7 into the memory at address 100; this is the ad hoc condition we'll check to ensure our processor is running correctly. We can execute the testbench module via a simple provided Python script which (for now) handles all of module compilation and dependency structure. Later we'll execute the test by hand one we've gained some familiarity with hardware description languages and how they differ from software languages. We can see the inner workings of the test 
+We don't need to understand any of the details of this program just yet. We'll look more at programming in assembly and higher-level languages in [Module 8: Programming](https://github.com/njkrichardson/olya/wiki/Programming). Notice the comment on the last line. A comment is a section of the program which is ignored by the assembler and therefore not included in the machine language program; comments are preceded by a semicolon `;`, after which the remainder of the line is ignored by the assembler until a newline `\n` character is reached. 
+
+The comment on line 52 tells us that the last instruction stores the decimal value 7 into the memory at address 100; this is the ad hoc condition we'll check to ensure our processor is running correctly. We can execute the testbench module via a simple provided Python script which (for now) handles all of module compilation and dependency structure. Later we'll execute the test by hand one we've gained some familiarity with hardware description languages and how they differ from software languages. We can see the inner workings of the test 
 script by including the argument `--verbose`. 
 
 ```bash 
@@ -165,13 +180,7 @@ Simulation succeeded
 
 We can see all of the modules used to compile our processor, and that the simulation succeeded! We can simply type `finish` at the carrot repl prompt that we are dumped into. Apparently, we have HDL which implements a processor which can execute programs, I hope this serves as motivation to understand every piece of how the processor works, from atoms to architecture. 
 
-## How To Use This Guide 
-
-There are two primary learning paths which both culminate in the implementation of your Arm processor. The **top-down** path begins at a high layer of abstraction: it begins with the module on architecture and programming, and concludes with the module on transistors and the physics of computation. Learner's following the top-down path get to dessert first in seing code and a complete processor, but can't yet understand many of the juicy details. It may feel intimidating or dissatisfying to have to skim over sections with terms and concepts introduced in the modules on hardware and microarchitecture. 
-
-The **bottom-up** path builds a processor assuming no prerequisite knowledge except for a basic understanding of electricity. At the outset, building a microprocessor feels completely removed from the quantum physical effects which determine the operation of a transistor. But, ultimately, one gets to revisit basic architecture or programming concepts in the "later" modules with the surprising new knowledge of how to implement these primitives in hardware. 
-
-Either way, both paths start at the same place. Whenever you're ready, go ahead and dive into the [introductory module](https://github.com/njkrichardson/olya/wiki/Computer-Engineering-Basics), which introduces background terminology and computer engineering basics that will be used throughout the guide. 
+The best place to jump in is the [Wiki Home](https://github.com/njkrichardson/olya/wiki) page! 
 
 ---
 
@@ -223,8 +232,7 @@ One way to both concretize one end of the RISC/CISC spectrum is by invoking the 
 ---
 
 ## Acknowledgements
-The implementation is inspired by and draws from the processor architected in the Arm edition of Harris & Harris' _Digital Design and Computer Architecture_ [2], specifically following the chapter on 
-microarchitecture and the hardware description language (HDL) modules provided in the accompanying site [2]. 
+The implementation and writing here is inspired by and often draws directly from the the Arm edition of Harris & Harris' _Digital Design and Computer Architecture_ [2]. I cite the book when I directly copy-and-paste any statement, but generally write my own explanations of the concepts. I rearange some of the content ordering in a way that feels more intuitive to me, and I often update exercises and examples to the most recent cases available. The motivation section of this README is modelled by the introduction to their book. The hardware description language (HDL) implementation is guided heavily by the modules provided in the accompanying site [2]. 
 
 I actually had the good fortune to take David Harris' computer architecture course as an undergraduate math major at Harvey Mudd College. Although I left the course with a measely B+ grade and a confused understanding of computers, what David Harris demonstrated to me in those Monday and Wednesday morning hours was a gift I can't possibly repay: a man with the insane drive to truly understand a computer, from atoms to architectures.  
 
