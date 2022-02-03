@@ -121,7 +121,7 @@ $ bat processors/single_cycle/datapath.sv
   <img src="figs/datapath_bat_out.png" alt="drawing" width="1000"/>
 </p>
 
-The datapath is comprised of largely combinational logic like **multiplexers** and **arithmetic logic units** which produces outputs as a function of the current inputs, with no memory of previous inputs. We learn about combinational logic in [Module 2: Combinational Logic](https://github.com/njkrichardson/olya/wiki/Combinational-Logic). 
+The datapath is comprised of largely combinational logic like **multiplexers**, **adders**, **extenders**, and **arithmetic logic units**. Combinational circuits produce outputs as a function of the current inputs, with no memory of previous inputs. We learn about combinational logic in [Module 2: Combinational Logic](https://github.com/njkrichardson/olya/wiki/Combinational-Logic). 
 
 The test program we'll use to exercise the processor is a sequence of machine instructions encoded as 32-bit binary numbers (since we build a 32-bit processor). This sequence of instructions, the **program**, is stored as a hexadecimal encoded text file.. The machine language program is at `olya/programs/basic.dat`, and can be viewed using: 
 
