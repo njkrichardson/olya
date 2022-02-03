@@ -6,10 +6,9 @@
       2. [Untangling Terms: Architecture vs. Microarchitecture](https://github.com/njkrichardson/olya#untangling-terms-architecture-vs-microarchitecture)
       3. [Motivation](https://github.com/njkrichardson/olya#motivation)
   2. [Getting Started](https://github.com/njkrichardson/olya#getting-started)
-  3. [How To Use This Guide](https://github.com/njkrichardson/olya#how-to-use-this-guide)
-  4. [Extra Bits](https://github.com/njkrichardson/olya#extra-bits)
-  6. [Acknowledgements](https://github.com/njkrichardson/olya#acknowledgements)
-  7. [References](https://github.com/njkrichardson/olya#references)
+  3. [Extra Bits](https://github.com/njkrichardson/olya#extra-bits)
+  4. [Acknowledgements](https://github.com/njkrichardson/olya#acknowledgements)
+  5. [References](https://github.com/njkrichardson/olya#references)
 ---
 
 ## Background 
@@ -181,13 +180,7 @@ Simulation succeeded
 
 We can see all of the modules used to compile our processor, and that the simulation succeeded! We can simply type `finish` at the carrot repl prompt that we are dumped into. Apparently, we have HDL which implements a processor which can execute programs, I hope this serves as motivation to understand every piece of how the processor works, from atoms to architecture. 
 
-## How To Use This Guide 
-
-There are two primary learning paths which both culminate in the implementation of your Arm processor. The **top-down** path begins at a high layer of abstraction: it begins with the module on architecture and programming, and concludes with the module on transistors and the physics of computation. Learner's following the top-down path get to dessert first in seing code and a complete processor, but can't yet understand many of the juicy details. It may feel intimidating or dissatisfying to have to skim over sections with terms and concepts introduced in the modules on hardware and microarchitecture. 
-
-The **bottom-up** path builds a processor assuming no prerequisite knowledge except for a basic understanding of electricity. At the outset, building a microprocessor feels completely removed from the quantum physical effects which determine the operation of a transistor. But, ultimately, one gets to revisit basic architecture or programming concepts in the "later" modules with the surprising new knowledge of how to implement these primitives in hardware. 
-
-Either way, both paths start at the same place. Whenever you're ready, go ahead and dive into the [introductory module](https://github.com/njkrichardson/olya/wiki/Computer-Engineering-Basics), which introduces background terminology and computer engineering basics that will be used throughout the guide. 
+The best place to jump in is the [Wiki Home](https://github.com/njkrichardson/olya/wiki) page! 
 
 ---
 
